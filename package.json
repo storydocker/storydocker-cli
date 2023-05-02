@@ -1,12 +1,21 @@
 {
   "name": "storydocker-cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
+  "keywords": [
+    "docker",
+    "storybook",
+    "StoryDocker"
+  ],
+  "author": "scottnath",
+  "license": "MIT",
+  "description": "A CLI for StoryDocker which can add storybook to your project, without adding dependencies",
   "bin": {
     "storyD": "./bin/cli.js"
   },
   "dependencies": {
     "@storybook/cli": "^7.0.7",
-    "commander": "^10.0.1"
+    "commander": "^10.0.1",
+    "fs-extra": "^11.1.1"
   }
 }

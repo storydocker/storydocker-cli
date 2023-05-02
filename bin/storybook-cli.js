@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
 import { JsPackageManager } from '@storybook/cli';
 import { spawn } from 'child_process';
@@ -8,7 +8,7 @@ import { spawn } from 'child_process';
  */
 export const addScripts = (cwd = './', pkgJson) => {
   if (pkgJson) {
-    fs.writeFileSync(
+    fs.outputFileSync(
       path.join(cwd, './package.json'),
       JSON.stringify(pkgJson, null, 2)
     );
@@ -27,16 +27,21 @@ export const addScripts = (cwd = './', pkgJson) => {
 /**
  * Add storybook config files, boilerplate stories & components and npm scripts
  */
-export const addStorybookBoilerplate = (cwd = './') => {
+export const addStorybookBoilerplate = (cwd = './', optionsArr = []) => {
   const packageManager = new JsPackageManager({ cwd });
   const initialPackageJson = packageManager.retrievePackageJson();
-  const sb = spawn('npx', ['storybook', 'init', '--skip-install'], {
+  const sb = spawn('npx', ['storybook', 'init', '--skip-install'].concat(optionsArr), {
     cwd,
   });
   let killed = false;
 
   sb.stdout.on('data', (data) => {
-    console.log(data.toString().trim());
+    if (data.includes('storybook init')) {
+      console.log('Installing storybook files using `storybook-cli`');
+    }
+    if (data.includes('Adding Storybook support to')) {
+      console.log(data.toString().trim());
+    }
     if (data.includes('Do you want to run the')) {
       sb.stdin.write('n');
       sb.stdin.end();
