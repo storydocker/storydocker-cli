@@ -4,6 +4,16 @@ import { JsPackageManager } from '@storybook/cli';
 import { spawn } from 'child_process';
 
 /**
+ * Storybook addons installed by StoryDocker
+ */
+const storyDockerAddons = [
+  '@storybook/addon-essentials',
+  '@storybook/addon-links',
+  '@storybook/addon-interactions',
+  '@storybook/addon-coverage',
+];
+
+/**
  * Add storybook npm scripts to package.json
  */
 export const addScripts = (cwd = './', pkgJson) => {
@@ -25,9 +35,37 @@ export const addScripts = (cwd = './', pkgJson) => {
 };
 
 /**
+ * Add storybook addon
+ */
+export const generatorStorybookAddons = async (cwd = './', addons = []) => {
+  if (!cwd) {
+    console.error('Need project directory');
+    return;
+  }
+  if (!addons) {
+    console.log('Please specify a Storybook addon');
+    return;
+  }
+  const sbConfigPath = path.join(cwd, '.storybook');
+  const contents = await fs.readdir(sbConfigPath);
+  let filename = 'main.js';
+  contents.forEach((file) => {
+    if (file.includes('main')) {
+      filename = file;
+    }
+  });
+  const mainFilePath = path.join(sbConfigPath, filename);
+  const mainFile = await fs.readFile(mainFilePath, 'utf8');
+  const combinedAddons = Array.from(new Set(storyDockerAddons.concat(addons)));
+  const addonList = combinedAddons.map((addon) => `'${addon}'`).join(', ');
+  const newFile = mainFile.replace(/(?<=addons: \[)(.|\n)*(?=\])/gm, addonList);
+  await fs.outputFile(mainFilePath, newFile);
+};
+
+/**
  * Add storybook config files, boilerplate stories & components and npm scripts
  */
-export const addStorybookBoilerplate = (cwd = './', optionsArr = []) => {
+export const addStorybookBoilerplate = (cwd = './', optionsArr = [], sdOpts = {}) => {
   const packageManager = new JsPackageManager({ cwd });
   const initialPackageJson = packageManager.retrievePackageJson();
   const sb = spawn('npx', ['storybook', 'init', '--skip-install'].concat(optionsArr), {
@@ -58,11 +96,12 @@ export const addStorybookBoilerplate = (cwd = './', optionsArr = []) => {
     console.error(data.toString());
   });
 
-  sb.on('close', (code) => {
+  sb.on('close', async (code) => {
     if (killed) {
       console.log('Storybook setup cancelled');
       return;
     }
+    await generatorStorybookAddons(cwd, sdOpts.addons);
     addScripts(cwd, initialPackageJson);
     console.log(`storybook's cli exited with code ${code}`);
   });

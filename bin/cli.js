@@ -12,8 +12,10 @@ program.command('add-storybook')
   .argument('[string]', 'project directory')
   .option('-t, --type <string>', 'project type')
   .option('-b, --builder <string>', 'project builder')
+  .option('-a, --addons <addons...>', 'Storybook addons')
   .action((str, options) => {
     const optionsArr = new Set();
+    const sdOpts = {};
     if (options.type) {
       optionsArr.add('--type');
       optionsArr.add(options.type);
@@ -22,7 +24,10 @@ program.command('add-storybook')
       optionsArr.add('--builder');
       optionsArr.add(options.builder);
     }
-    addStorybookBoilerplate(str, Array.from(optionsArr));
+    if (options.addons) {
+      sdOpts.addons = options.addons;
+    }
+    addStorybookBoilerplate(str, Array.from(optionsArr), sdOpts);
   });
 
 program.command('add-storydocker')
