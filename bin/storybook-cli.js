@@ -16,19 +16,19 @@ const storyDockerAddons = [
 /**
  * Add storybook npm scripts to package.json
  */
-export const addScripts = (cwd = './', pkgJson) => {
+export const addScripts = async (cwd = './', pkgJson) => {
   if (pkgJson) {
-    fs.outputFileSync(
+    await fs.outputFile(
       path.join(cwd, './package.json'),
       JSON.stringify(pkgJson, null, 2)
     );
   }
   const packageManager = new JsPackageManager({ cwd });
   // adds `storybook` and `build-storybook` scripts
-  packageManager.addStorybookCommandInScripts({
+  await packageManager.addStorybookCommandInScripts({
     port: '${SB_PORT:-6006}',
   });
-  packageManager.addScripts({
+  await packageManager.addScripts({
     'test-storybook':
       'test-storybook --url http://localhost:${SB_PORT:-6006}  --coverage',
   });
@@ -65,14 +65,13 @@ export const generatorStorybookAddons = async (cwd = './', addons = []) => {
 /**
  * Add storybook config files, boilerplate stories & components and npm scripts
  */
-export const addStorybookBoilerplate = (cwd = './', optionsArr = [], sdOpts = {}) => {
+export const addStorybookBoilerplate = async (cwd = './', optionsArr = [], sdOpts = {}) => {
   const packageManager = new JsPackageManager({ cwd });
-  const initialPackageJson = packageManager.retrievePackageJson();
+  const initialPackageJson = await packageManager.retrievePackageJson();
   const sb = spawn('npx', ['storybook', 'init', '--skip-install'].concat(optionsArr), {
     cwd,
   });
   let killed = false;
-
   sb.stdout.on('data', (data) => {
     if (data.includes('storybook init')) {
       console.log('Installing storybook files using `storybook-cli`');
@@ -102,7 +101,7 @@ export const addStorybookBoilerplate = (cwd = './', optionsArr = [], sdOpts = {}
       return;
     }
     await generatorStorybookAddons(cwd, sdOpts.addons);
-    addScripts(cwd, initialPackageJson);
+    await addScripts(cwd, initialPackageJson);
     console.log(`storybook's cli exited with code ${code}`);
   });
 };

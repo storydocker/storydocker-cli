@@ -37,4 +37,4 @@ program.command('add-storydocker')
     addStoryDockerFiles(str);
   });
 
-program.parse();
+program.parseAsync();
