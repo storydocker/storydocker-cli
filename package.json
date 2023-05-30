@@ -1,6 +1,6 @@
 {
   "name": "storydocker-cli",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "type": "module",
   "keywords": [
     "docker",
@@ -14,7 +14,7 @@
     "storyD": "./bin/cli.js"
   },
   "dependencies": {
-    "@storybook/cli": "^7.0.7",
+    "@storybook/cli": "^7.0.18",
     "commander": "^10.0.1",
     "fs-extra": "^11.1.1"
   }
