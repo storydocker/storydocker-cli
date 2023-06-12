@@ -14,7 +14,7 @@
     "storyD": "./bin/cli.js"
   },
   "dependencies": {
-    "@storybook/cli": "^7.0.18",
+    "@storybook/cli": "^7.0.20",
     "commander": "^10.0.1",
     "fs-extra": "^11.1.1"
   }
